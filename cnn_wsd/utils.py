@@ -8,6 +8,7 @@ from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
 )
+from metrics import BAROC, FRCROC
 
 
 def dump_pkl(obj, path):
@@ -142,15 +143,21 @@ def report_metric_from_log(dic, logg):
         logg.info(f"-------- Model : {i} --------")
         f1 = dic[i]["f1"]
         acc = dic[i]["acc"]
+        cm = dic[i]["cfmf"]
+        logg.info(f"confusion matrix frcroc: ")
+        c = pd.DataFrame(
+            np.mean(cm, axis=0).round(4), columns=cm[0].columns, index=cm[0].index
+        )
+        logg.info(c.to_string())
         logg.info(f"f1 : {np.mean(f1)} +/- {np.std(f1)}")
         logg.info(f"acc : {np.mean(acc)} +/- {np.std(acc)}")
     logg.info(f"======== End report ========")
     return logg
 
 
-def report_prediction(y_true, y_pred, le, logg):
+def report_prediction(y_true, y_pred, le, logg, t_fcroc=None, t_baroc=None):
     """Compute the f1 and accuracy score and the confusion matrix from the true and predicted labels and report it in a log file
-    The y_true and y_pred must be categorical (one hot encoded: [[0, 1, 0], [1, 0, 0], [0, 0, 1]])
+    The y_true and y_pred must be categorical (one hot encoded: [[0, 1, 0], [1, 0, 0], [0, 0, 1]]) or binary (0 or 1)
 
     Parameters
     ----------
@@ -166,6 +173,12 @@ def report_prediction(y_true, y_pred, le, logg):
     logg : logging
         Logger
 
+    t_fcroc : float, optional
+        Threshold for the FRCROC metric, by default None
+
+    t_baroc : float, optional
+        Threshold for the BAROC metric, by default None
+
     Returns
     -------
     logging
@@ -179,12 +192,19 @@ def report_prediction(y_true, y_pred, le, logg):
 
     """
     logg.info("----------- REPORT -----------")
-    if y_true.shape[1] > 1:
+    if y_pred.shape[1] > 1:
         y_true = y_true.argmax(axis=1)
         y_pred = y_pred.argmax(axis=1)
     else:
         y_true = y_true.ravel()
-        y_pred = np.where(y_pred > 0.5, 1, 0).ravel()
+        y_pred = y_pred.ravel()
+        if t_fcroc != None:
+            y_pred_frcroc = np.where(y_pred > t_fcroc, 1, 0)
+            y_pred_frcroc = le.inverse_transform(y_pred_frcroc)
+        if t_baroc != None:
+            y_pred_baroc = np.where(y_pred > t_baroc, 1, 0)
+            y_pred_baroc = le.inverse_transform(y_pred_baroc)
+        y_pred = np.where(y_pred > 0.5, 1, 0)
 
     y_true = le.inverse_transform(y_true)
     y_pred = le.inverse_transform(y_pred)
@@ -199,8 +219,33 @@ def report_prediction(y_true, y_pred, le, logg):
     acc = 100 * accuracy_score(y_true, y_pred).round(5)
     logg.info(f"f1 score : {f1}")
     logg.info(f"accuracy score : {acc}")
+    if t_fcroc != None:
+        cfmf = pd.DataFrame(
+            100 * confusion_matrix(y_true, y_pred_frcroc, normalize="all").round(4),
+            columns=le.classes_,
+            index=le.classes_,
+        )
+        logg.info(f"confusion matrix fcroc : ")
+        logg.info(cfmf.to_string())
+
+        f1f = 100 * f1_score(y_true, y_pred_frcroc, average="macro").round(5)
+        accf = 100 * accuracy_score(y_true, y_pred_frcroc).round(5)
+        logg.info(f"f1 score fcroc : {f1f}")
+        logg.info(f"accuracy score fcroc : {accf}")
+    if t_baroc != None:
+        cfmb = pd.DataFrame(
+            100 * confusion_matrix(y_true, y_pred_baroc, normalize="all").round(4),
+            columns=le.classes_,
+            index=le.classes_,
+        )
+        logg.info(f"confusion matrix baroc : ")
+        logg.info(cfmb.to_string())
+        f1b = 100 * f1_score(y_true, y_pred_baroc, average="macro").round(5)
+        accb = 100 * accuracy_score(y_true, y_pred_baroc).round(5)
+        logg.info(f"f1 score baroc : {f1b}")
+        logg.info(f"accuracy score baroc : {accb}")
     logg.info("----------- END REPORT -----------")
-    return logg, f1, acc
+    return logg, f1, acc, cfmf
 
 
 def init_logger(path_log):

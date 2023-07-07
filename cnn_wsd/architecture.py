@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 
 
-def M1_CNN_96F(lr, input_dim=(16, 16, 4)):
+def M1cnn96F(lr, input_dim=(16, 16, 4)):
     """Model 1: 96 filters, 3x3 kernel, 2x2 maxpooling, 64 neurons in dense layer
 
     Parameters
@@ -18,7 +18,7 @@ def M1_CNN_96F(lr, input_dim=(16, 16, 4)):
     model : tf.keras.Sequential
         Model 1
     """
-    model = tf.keras.Sequential(name="M1_CNN_96F")
+    model = tf.keras.Sequential(name="M1cnn96F")
     model.add(
         tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_dim)
     )
@@ -37,7 +37,7 @@ def M1_CNN_96F(lr, input_dim=(16, 16, 4)):
     return model
 
 
-def M2_CNN_32F(lr, input_dim=(16, 16, 4)):
+def M2cnn32F(lr, input_dim=(16, 16, 4)):
     """Model 2: 32 filters, 3x3 kernel, 2x2 maxpooling, 64 neurons in dense layer
 
     Parameters
@@ -53,7 +53,7 @@ def M2_CNN_32F(lr, input_dim=(16, 16, 4)):
     model : tf.keras.Sequential
         Model 2
     """
-    model = Sequential(name="M2_CNN_32F")
+    model = Sequential(name="M2cnn32F")
     model.add(
         tf.keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_dim)
     )
@@ -71,7 +71,7 @@ def M2_CNN_32F(lr, input_dim=(16, 16, 4)):
     return model
 
 
-def M3_CNN_24F(lr, input_dim=(16, 16, 4)):
+def M3cnn24F(lr, input_dim=(16, 16, 4)):
     """Model 3: 24 filters, 3x3 kernel, 64 neurons in dense layer
 
     Parameters
@@ -87,7 +87,7 @@ def M3_CNN_24F(lr, input_dim=(16, 16, 4)):
     model : tf.keras.Sequential
         Model 3
     """
-    model = Sequential(name="M3_CNN_24F")
+    model = Sequential(name="M3cnn24F")
     model.add(
         tf.keras.layers.Conv2D(
             8, (3, 3), padding="same", activation="relu", input_shape=input_dim
@@ -105,7 +105,7 @@ def M3_CNN_24F(lr, input_dim=(16, 16, 4)):
     return model
 
 
-def M4_CNN_16F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
+def M4cnn16F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     """Model 4: 16 filters, 3x3 kernel, 2x2 maxpooling, 64 neurons in dense layer
 
     Parameters
@@ -127,7 +127,7 @@ def M4_CNN_16F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     model : tf.keras.Sequential
         Model 4
     """
-    model = Sequential(name="M4_CNN_16F")
+    model = Sequential(name="M4cnn16F")
     model.add(
         tf.keras.layers.Conv2D(
             num_filters,
@@ -153,7 +153,7 @@ def M4_CNN_16F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     return model
 
 
-def M5_CNN_24F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
+def M5cnn24F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     """Model 5: 24 filters, 3x3 kernel, 2x2 maxpooling, 128 neurons in dense layer
 
     Parameters
@@ -175,9 +175,9 @@ def M5_CNN_24F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     model : tf.keras.Sequential
         Model 5
     """
-    model = Sequential(name="M5_CNN_24F")
+    model = Sequential(name="M5cnn24F")
     model.add(
-        tf.keras.layersConv2D(
+        tf.keras.layers.Conv2D(
             num_filters,
             (3, 3),
             padding="same",
@@ -207,7 +207,7 @@ def M5_CNN_24F(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     return model
 
 
-def M5_CNN_16F_3D(lr, input_dim=(16, 16, 4, 1), num_filters=8, num_classes=1):
+def M5cnn16F3D(lr, input_dim=(16, 16, 4, 1), num_filters=8, num_classes=1):
     """Model 5: 16 filters, 3x3x3 kernel, 2x2x2 maxpooling
 
     Parameters
@@ -229,7 +229,7 @@ def M5_CNN_16F_3D(lr, input_dim=(16, 16, 4, 1), num_filters=8, num_classes=1):
     model : tf.keras.Sequential
         Model 5
     """
-    model = Sequential(name="M5_CNN_16F_3D")
+    model = Sequential(name="M5cnn16F3D")
     model.add(
         tf.keras.layers.Conv3D(
             num_filters,
@@ -257,7 +257,7 @@ def M5_CNN_16F_3D(lr, input_dim=(16, 16, 4, 1), num_filters=8, num_classes=1):
     return model
 
 
-def M6_CNN_24F1D(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
+def M6cnn24F1D(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     """Model 6: 24 filters, 3x3 kernel, 2x2 maxpooling
 
     Parameters
@@ -279,7 +279,7 @@ def M6_CNN_24F1D(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     model : tf.keras.Sequential
         Model 6
     """
-    model = Sequential(name="M6_CNN_24F1D")
+    model = Sequential(name="M6cnn24F1D")
     model.add(
         tf.keras.layers.Conv2D(
             num_filters,
@@ -312,7 +312,7 @@ def M6_CNN_24F1D(lr, input_dim=(16, 16, 4), num_filters=8, num_classes=1):
     return model
 
 
-def M7_CNN_24F1D(lr, input_dim=(16, 16, 4), num_filters=12, num_classes=1):
+def M7cnn24F1D(lr, input_dim=(16, 16, 4), num_filters=12, num_classes=1):
     """Model 7: 24 filters, 3x3 kernel, 2x2 maxpooling, 128 neurons in dense layer
 
     Parameters
@@ -334,7 +334,7 @@ def M7_CNN_24F1D(lr, input_dim=(16, 16, 4), num_filters=12, num_classes=1):
     model : tf.keras.Sequential
         Model 7
     """
-    model = Sequential(name="M7_CNN_24F1D")
+    model = Sequential(name="M7cnn24F1D")
     model.add(
         tf.keras.layers.Conv2D(
             num_filters,

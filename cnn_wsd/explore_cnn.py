@@ -6,14 +6,14 @@ from tensorflow.keras.callbacks import EarlyStopping
 from datetime import datetime
 from tqdm import tqdm
 from architecture import (
-    M1_CNN_96F,
-    M2_CNN_32F,
-    M3_CNN_24F,
-    M4_CNN_16F,
-    M5_CNN_24F,
-    M5_CNN_16F_3D,
-    M6_CNN_24F1D,
-    M7_CNN_24F1D,
+    M1cnn96F,
+    M2cnn32F,
+    M3cnn24F,
+    M4cnn16F,
+    M5cnn24F,
+    M5cnn16F3D,
+    M6cnn24F1D,
+    M7cnn24F1D,
 )
 from utils import (
     load_h5,
@@ -135,7 +135,7 @@ def extract_best_lr(dic):
     return best_lr_per_model
 
 
-def info_training(m, h, logg, dic):
+def info_training(m, h, logg, dic, name_model, X_test, y_test, X_train, y_train, le):
     """Log information about the training of a keras model, calculate the f1 and accuracy and store them in a dictionary.
     Log the first and last loss and val_loss
 
@@ -153,6 +153,9 @@ def info_training(m, h, logg, dic):
     dic : dict
         Dictionary with the f1 and accuracy for each model and learning rate
 
+    name_model : str
+        Name of the model
+
     Returns
     -------
     logging
@@ -165,8 +168,18 @@ def info_training(m, h, logg, dic):
     top_val = {np.array(h.history["val_loss"])[0].round(5)}
     end_val = {np.array(h.history["val_loss"])[-1].round(5)}
     logg.info(f"Val loss:  {top_val} -> {end_val}")
+
+    ypred_train = m.predict(X_train)
+    acc_tfcroc, T_frcoc = FRCOC(y_train, ypred_train, 0.05)
+    logg.info(f"accuracy frcoc 5% : {acc_tfcroc}")
+    logg.info(f"threshold frcoc 5% : {T_frcoc}")
+
+    acc_tbaroc, T_baroc = BAROC(y_train, ypred_train)
+    logg.info(f"accuracy baroc : {acc_tbaroc}")
+    logg.info(f"threshold baroc : {T_baroc}")
+
     ypred = m.predict(X_test)
-    logg, f1, acc = report_prediction(y_test, ypred, le, logg)
+    logg, f1, acc, _ = report_prediction(y_test, ypred, le, logg, T_frcoc, T_baroc)
     dic[name_model] = [f1, acc]
     return logg, dic
 
@@ -231,14 +244,14 @@ if __name__ == "__main__":
     dic = {}
     lr = [8e-2, 3e-2, 1e-2, 3e-3, 1e-3, 3e-4, 1e-4, 1e-5]
     models = [
-        M1_CNN_96F,
-        M2_CNN_32F,
-        M3_CNN_24F,
-        M4_CNN_16F,
-        M5_CNN_24F,
-        M5_CNN_16F_3D,
-        M6_CNN_24F1D,
-        M7_CNN_24F1D,
+        M1cnn96F,
+        M2cnn32F,
+        M3cnn24F,
+        M4cnn16F,
+        M5cnn24F,
+        M5cnn16F3D,
+        M6cnn24F1D,
+        M7cnn24F1D,
     ]
     for model in tqdm(models, desc="model", leave=False):
         for learning_rate in tqdm(lr, desc="learning rate", leave=False):
@@ -258,10 +271,11 @@ if __name__ == "__main__":
                 use_multiprocessing=True,
                 verbose=0,
             )
-            logg, dic = info_training(m, h, logg, dic)
+            logg, dic = info_training(
+                m, h, logg, dic, name_model, X_test, y_test, X_train, y_train, le
+            )
             del m, h
     dump_pkl(dic, os.path.join(path_results, "dic.pkl"))
-
     best_lr_per_model = extract_best_lr(dic)
     logg.info(f"best_lr_per_model : \n{best_lr_per_model}")
 
