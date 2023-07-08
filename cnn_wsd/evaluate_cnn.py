@@ -139,7 +139,7 @@ def CNN_Bfold_learning(
 
 
 def RF_Bfold_learning(
-    model, learning_rate, X, y, frac_val, batch_size, n_epochs, callbacks, logg
+    X, y, logg
 ):
     """Evaluate the keras model with kfold cross validation, and return the f1, accuracy score and the weights learned
 
@@ -174,7 +174,7 @@ def RF_Bfold_learning(
     list
         List of threshold for each fold with the learned threshold for best accuracy BAROC
     """
-    bkf = Bfold(shuffle=False, random_state=42)
+    bkf = BFold(shuffle=False, random_state=42)
 
     kfold = 0
     f1 = []
@@ -183,11 +183,10 @@ def RF_Bfold_learning(
     Tfrcoc = []
     Tbaroc = []
 
-    X_train = X[0]
-    X_test = X[1]
+    X_train = X[0].reshape(X[0].shape[0],-1)
+    X_test = X[1].reshape(X[1].shape[0],-1)
     y_train = y[0]
     y_test = y[1]
-
     for train_index in bkf.split(X_train, y_train):
         logg.info(f"Kfold : {kfold}")
 
@@ -196,17 +195,15 @@ def RF_Bfold_learning(
         logg.info("#" * 50)
         rf = RandomForestClassifier(n_estimators=200, random_state=0, n_jobs=-1)
         rf.fit(X_train_K, y_train_k)
-        ypred = rf.predict(X_test)
-        ypred_train = rf.predict(X_train_K)
-
+        ypred = rf.predict_proba(X_test)[:,1].reshape(-1,1)
+        ypred_train = rf.predict_proba(X_train_K)[:,1].reshape(-1,1)
         accF, t_frcoc = FRCROC(y_train_k, ypred_train, 0.05)
-        logg.info(f"accuracy frcoc 5% : {accF}")
+        logg.info(f"accuracy train frcoc 5% : {accF}")
         logg.info(f"threshold frcoc 5% : {t_frcoc}")
 
         accB, t_baroc = BAROC(y_train_k, ypred_train)
-        logg.info(f"accuracy baroc : {accB}")
+        logg.info(f"accuracy train baroc : {accB}")
         logg.info(f"threshold baroc : {t_baroc}")
-
         logg, f1_k, acc_k, cfm_k = report_prediction(
             y_test, ypred, le, logg, t_frcoc, t_baroc
         )
@@ -223,7 +220,7 @@ def RF_Bfold_learning(
 if __name__ == "__main__":
     frac_val = 0.15
     band_max = [0, 1, 6, 7]
-    learning_rate = 0.0010
+    learning_rate = 3e-3
     balanced = [False, True]
     shuffle = True
     callbacks = [
@@ -270,7 +267,9 @@ if __name__ == "__main__":
     logg.info(f" Shuffle : {shuffle}")
     logg.info(f" Learning rate : {learning_rate}")
 
-    f1a, acca, logg, cmfcr, Tfrcoc, Tbaroc = CNN_Bfold_learning(
+
+
+    f1a, acca, logg, cmfcra, Tfrcoc, Tbaroc = CNN_Bfold_learning(
         M5cnn24F,
         learning_rate,
         [X_train, X_test],
@@ -284,7 +283,7 @@ if __name__ == "__main__":
     logg.info(f"CNN Threshold FRCOC (5%) mean: {np.mean(Tfrcoc)}")
     logg.info(f"CNN Threshold BAROC mean: {np.mean(Tbaroc)}")
 
-    f1b, accb, logg, cmfcr, Tfrcoc, Tbaroc = RF_Bfold_learning(
+    f1b, accb, logg, cmfcrb, Tfrcoc, Tbaroc = RF_Bfold_learning(
         [X_train, X_test], [y_train, y_test], logg
     )
     logg.info(f"RF Threshold FRCOC (5%) mean: {np.mean(Tfrcoc)}")

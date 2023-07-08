@@ -210,7 +210,7 @@ def report_prediction(y_true, y_pred, le, logg, t_fcroc=None, t_baroc=None):
     y_pred = le.inverse_transform(y_pred)
     logg.info(f"confusion matrix : ")
     cfm = pd.DataFrame(
-        100 * confusion_matrix(y_true, y_pred, normalize="all").round(4),
+        100 * confusion_matrix(y_true, y_pred, normalize="true").round(4),
         columns=le.classes_,
         index=le.classes_,
     )
@@ -221,7 +221,7 @@ def report_prediction(y_true, y_pred, le, logg, t_fcroc=None, t_baroc=None):
     logg.info(f"accuracy score : {acc}")
     if t_fcroc != None:
         cfmf = pd.DataFrame(
-            100 * confusion_matrix(y_true, y_pred_frcroc, normalize="all").round(4),
+            100 * confusion_matrix(y_true, y_pred_frcroc, normalize="true").round(4),
             columns=le.classes_,
             index=le.classes_,
         )
@@ -234,7 +234,7 @@ def report_prediction(y_true, y_pred, le, logg, t_fcroc=None, t_baroc=None):
         logg.info(f"accuracy score fcroc : {accf}")
     if t_baroc != None:
         cfmb = pd.DataFrame(
-            100 * confusion_matrix(y_true, y_pred_baroc, normalize="all").round(4),
+            100 * confusion_matrix(y_true, y_pred_baroc, normalize="true").round(4),
             columns=le.classes_,
             index=le.classes_,
         )

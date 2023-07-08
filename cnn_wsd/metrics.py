@@ -4,7 +4,7 @@ from sklearn.metrics import roc_curve
 
 def BAROC(y_true, y_est):
     """Estimate the best threshold given the best accuracy based on the ROC curve
-    
+
     Parameters
     ----------
     y_true : np.array
@@ -39,7 +39,7 @@ def FRCROC(y_true, y_est, rate=0.05):
     y_true : np.array
         True labels
 
-    y_est : np.array    
+    y_est : np.array
         Estimated labels
 
     rate : float, optional
@@ -52,7 +52,7 @@ def FRCROC(y_true, y_est, rate=0.05):
 
     float
         threshold at the fixed FPR
-
+    """
     fpr, tpr, thresholds = roc_curve(y_true, y_est)
     num_pos_class = y_true[y_true > 0].sum()
     num_neg_class = len(y_true) - num_pos_class

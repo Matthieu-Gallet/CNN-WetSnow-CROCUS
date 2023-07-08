@@ -3,6 +3,7 @@ from geo_tools import load_data, array2raster
 from tensorflow import keras
 from utils import *
 import time
+from os.path import join, dirname, basename
 
 
 def validation_files(
@@ -21,20 +22,7 @@ def validation_files(
         model = open_pkl(path_model)
     y_proba = model.predict(patches)
 
-    # bck = transforme_BCK(bck)
-    bckp = from_prediction_to_metric(bck)
-    _, thr = best_threshold_FPRc_ROC(bckp, 0.05)
-    ypred = np.where(y_proba > thr, 1, 0)
-    reconstruct = reconstruct_image(ypred, img.shape[:2], winsize)
-    array2raster(reconstruct, geodata, output_file[:-4] + "_BEST_FPRc__0_05.tif")
-
-    _, thr = best_threshold_accuracy_ROC(bckp)
-    ypred = np.where(y_proba > thr, 1, 0)
-    reconstructACC = reconstruct_image(ypred, img.shape[:2], winsize)
-    array2raster(reconstructACC, geodata, output_file[:-4] + "_BEST_acc.tif")
-
-    ypred = np.where(y_proba > 0.5, 1, 0)
-    reconstruct = reconstruct_image(ypred, img.shape[:2], winsize)
+    reconstruct = reconstruct_image(y_proba, img.shape[:2], winsize)
     array2raster(reconstruct, geodata, output_file[:-4] + "_05.tif")
 
     return 1
